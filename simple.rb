@@ -1,15 +1,14 @@
-
-class Machine < Struct.new(:expression, :environment)
+class Machine < Struct.new(:statement, :environment)
   def step
-    self.expression = expression.reduce(environment)
+    self.statement, self.environment = statement.reduce(environment)
   end
 
   def run
-    while expression.reducible?
-      puts expression
+    while statement.reducible?
+      puts "#{statement}, #{environment}"
       step
     end
-    puts expression
+    puts "#{statement}, #{environment}"
   end
 end
 
@@ -19,7 +18,7 @@ class Number < Struct.new(:value)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -33,7 +32,7 @@ class Add < Struct.new(:left, :right)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -57,7 +56,7 @@ class Multiply < Struct.new(:left, :right)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -81,7 +80,7 @@ class LessThan < Struct.new(:left, :right)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -101,11 +100,11 @@ end
 
 class Boolean < Struct.new(:value)
   def to_s
-      value.to_s
+    value.to_s
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -119,7 +118,7 @@ class Variable < Struct.new(:name)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
@@ -137,7 +136,7 @@ class DoNothing
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def ==(other_statement)
@@ -155,11 +154,11 @@ class Assign < Struct.new(:name, :expression)
   end
 
   def inspect
-    "#<<{self}>>"
+    "<<#{self}>>"
   end
 
   def reducible?
-    false
+    true
   end
 
   def reduce(environment)
@@ -174,9 +173,12 @@ end
 
 
 Machine.new(
-  Add.new(
-    Variable.new(:x), Variable.new(:y)),
-    { x: Number.new(3), y: Number.new(4) }).run
+  Assign.new(:x, Add.new(Variable.new(:x), Number.new(1))),
+    { x: Number.new(2) }
+    ).run
+  # Add.new(
+  #   Variable.new(:x), Variable.new(:y)),
+  #   { x: Number.new(3), y: Number.new(4) }).run
 #       Multiply.new(Number.new(1), Number.new(2)),
 #       Multiply.new(Number.new(3), Number.new(4))
 #   )
